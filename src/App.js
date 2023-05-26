@@ -1,15 +1,33 @@
-import ReactDOM from "react-dom";
-import { useState } from "react";
-import React from "react";
+import React, { useState, useEffect } from "react";
 
-const QuoteBox = ({ quote, handleNewQuote }) => {
+function RandomQuote() {
+  const [quote, setQuote] = useState("");
+  const [author, setAuthor] = useState("");
+
+  useEffect(() => {
+    fetchRandomQuote();
+  }, []);
+
+  const fetchRandomQuote = async () => {
+    try {
+      const response = await fetch("https://type.fit/api/quotes");
+      const data = await response.json();
+      const randomIndex = Math.floor(Math.random() * data.length);
+      const { text, author } = data[randomIndex];
+      setQuote(text);
+      setAuthor(author || "Unknown");
+    } catch (error) {
+      console.log("Error fetching random quote:", error);
+    }
+  };
+
   return (
     <div id="quote-box">
-      <p id="text">{quote.text}</p>
-      <h2 id="author">{quote.author}</h2>
+      <p id="text">{quote}</p>
+      <h2 id="author">{author}</h2>
 
       <div className="actions">
-        <button id="new-quote" className="button" onClick={handleNewQuote}>
+        <button id="new-quote" className="button" onClick={fetchRandomQuote}>
           New Qoute
         </button>
         <a
@@ -22,28 +40,6 @@ const QuoteBox = ({ quote, handleNewQuote }) => {
       </div>
     </div>
   );
-};
+}
 
-const App = () => {
-  const quote = fetch("https://type.fit/api/quotes")
-    .then(function (response) {
-      return response.json();
-    })
-    .then(function (data) {
-      console.log(data);
-    });
-  console.log(quote.data);
-  // const [quote, setQuote] = React.useState({
-  //   text: "hello world",
-  //   author: "samuel",
-  // });
-  const handleNewQuote = () => {};
-
-  return (
-    <div className="main">
-      <QuoteBox quote={quote} handleNewQuote={handleNewQuote} />
-    </div>
-  );
-};
-
-export default App;
+export default RandomQuote;
